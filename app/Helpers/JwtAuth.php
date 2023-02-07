@@ -128,7 +128,8 @@ class JwtAuth
                 'name' => $gener02->nombre,
                 'cedtra' => $gener02->cedtra,
                 'iat' => time(),
-                'exp' => time() + (7 * 24 * 60 * 60)
+                'exp' => time() + (7 * 24 * 60 * 60),
+                'sede'=>$gener02->sede
             );
             $jwt = JWT::encode($token, $this->key, 'HS256');
             //Devolver los datos identificados o el token, en funcion de un parametro
