@@ -5,6 +5,9 @@ namespace App\Helpers;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\DB;
 use App\Models\Gener02;
+use App\Models\Nomin02;
+use App\Models\Conta28;
+use App\Models\Registro;
 
 
 /* require_once("/resources/libs/UserReportPdf/UserReportPdf.php");
@@ -76,7 +79,7 @@ class JwtAuth
     }
 
 
-   
+
     function write_to_console($data)
     {
         $console = $data;
@@ -129,7 +132,7 @@ class JwtAuth
                 'cedtra' => $gener02->cedtra,
                 'iat' => time(),
                 'exp' => time() + (7 * 24 * 60 * 60),
-                'sede'=>$gener02->sede
+                'sede' => $gener02->sede
             );
             $jwt = JWT::encode($token, $this->key, 'HS256');
             //Devolver los datos identificados o el token, en funcion de un parametro
@@ -149,5 +152,60 @@ class JwtAuth
         return $data;
     }
 
-   
+
+    public function validateNomin02($docemp)
+    {
+
+        $nomin02 = Nomin02::where('docemp', $docemp)->first();
+        if ($nomin02) {
+            $conta28 = Conta28::where('coddep', $nomin02->coddep)->where('cnt', '01')->first();
+            if ($nomin02->estado == 'A') {
+                $data = array(
+                    'docemp' => $nomin02->docemp,
+                    'priape' => $nomin02->priape,
+                    'segape' => $nomin02->segape,
+                    'nomemp' => $nomin02->nomemp,
+                    'segnom' => $nomin02->segnom,
+                    'coddep' => $nomin02->coddep,
+                    'detalle_coddep' => $conta28->detalle,
+                    'code' => 200,
+                    'status'=>'success'
+                );
+
+            } else {
+                $data = array(
+                    'status' => 'error',
+                    'message' => 'Trabajador Inactivo!',
+                    'bandera' => false,
+                    'code' => 404
+                );
+            }
+
+        } else {
+            $data = array(
+                'status' => 'error',
+                'message' => 'Documento no existe',
+                'bandera' => false,
+                'code' => 404
+            );
+        }
+
+        return $data;
+
+    }
+    public function validacionTipo($docemp){
+
+        $fecha = Date('Y-m-d');
+
+        $registro =  Registro::where('docemp', $docemp)->where('fecha',$fecha)->orderBy('id', 'desc')->first();
+
+
+        return $registro;
+    }
+
+
+
+
+
+
 }

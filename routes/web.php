@@ -21,6 +21,11 @@ Route::get('/', function () {
 Route::post('/api/register',[App\Http\Controllers\Gener02Controller::class,'register']);
 Route::post('/api/login',[App\Http\Controllers\Gener02Controller::class,'login']);
 
+Route::post('/api/registro/validateNomin02',[App\Http\Controllers\RegistroController::class,'validateNomin02']);
+
+
+
+
 
 
 

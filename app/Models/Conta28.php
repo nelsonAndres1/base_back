@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Registro extends Model
+class Conta28 extends Model
 {
     use HasFactory;
-    protected $table = 'registro';
-    public $timestamps = false;
+    protected $table = 'conta28';
 }
