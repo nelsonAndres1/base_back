@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\Registro;
 use Firebase\JWT\JWT;
+use Nette\Utils\DateTime;
+
 
 class RegistroController extends Controller
 {
@@ -34,8 +36,8 @@ class RegistroController extends Controller
             );
         } else {
             $data = $jwtAuth->validateNomin02($params_array['docemp']);
-            if($data['status'] != 'error'){
-                $this->Validacion_Register($data);
+            if ($data['status'] != 'error') {
+                $data = $this->Validacion_Register($data);
             }
 
             $jwt = JWT::encode($data, $this->key, 'HS256');
@@ -48,47 +50,79 @@ class RegistroController extends Controller
 
 
     public function Validacion_Register($data)
-    {   
-        $jwtAuth = new \JwtAuth();
+    {
 
-        $fecha = Date('Y-m-d'); 
-        
-        $registro = $jwtAuth->validacionTipo($data['docemp']);
-    
-    
-        $registro =  Registro::where('docemp', $data['docemp'])->where('fecha', "'".$fecha."'")->orderBy('id', 'desc')->first();
-
+        $fecha = Date('Y-m-d');
+        $hora = Date('H:i:s');
+        $registro = '';
+        $registro = Registro::where('docemp', $data['docemp'])->where('fecha', $fecha)->orderBy('id', 'desc')->first();
         if ($registro) {
+            $fecini = new DateTime($fecha.' '.$hora);
+            $fecfin = new DateTime($fecha.' '.$registro->hora);
+            var_dump($fecini);
+            var_dump($fecfin);
+            $interval = $fecini->diff($fecfin);
+            $diferencia = $interval->i;
 
-            if ($registro->tipo == 'E') {
+            if($diferencia<=1){
+                $data = array(
+                    'status'=>'error',
+                    'message'=>'Ya existe registro!',
+                );
+            }else{
+                if ($registro->tipo == 'E') {
+                    $respuesta = $this->register_tipo($data, 'S');
+                    if($respuesta){
+                        $data = array(
+                            'status'=>'success',
+                            'message'=>'Salida!',
+                        );      
+                    }  
+                } else {
+                    $respuesta = $this->register_tipo($data, 'E');
 
-                //iria registro para salida
-                $this->register_tipo($data, 'S');
-            } else {
-
-                //iria registro para Entrada
-                $this->register_tipo($data, 'E');
+                    if($respuesta){
+                        $data = array(
+                            'status'=>'success',
+                            'message'=>'Ingreso!',
+                        );      
+                    }  
+                }
             }
         } else {
-               //iria registro para Entrada
-               $this->register_tipo($data, 'E');
+            $respuesta = $this->register_tipo($data, 'E');
+            if($respuesta){
+                $data = array(
+                    'status'=>'success',
+                    'message'=>'Ingreso!',
+                );      
+            }  
         }
+        return $data;
     }
 
 
-    public function register_tipo($data, $tipo){
+    public function register_tipo($data, $tipo)
+    {
 
         $hora = date("H:i:s");
-        $hoy = date("Y-m-d");  
+        $hoy = date("Y-m-d");
 
         $registro = new Registro();
-        $registro->docemp=$data['docemp'];
-        $registro->fecha=$hoy;
+        $registro->docemp = $data['docemp'];
+        $registro->fecha = $hoy;
         $registro->hora = $hora;
         $registro->tipo = $tipo;
         $registro->usrsede = '1';
         $registro->id_horario = 1;
         $registro->save();
+
+
+        if($registro){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 

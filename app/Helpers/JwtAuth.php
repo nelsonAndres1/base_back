@@ -193,19 +193,5 @@ class JwtAuth
         return $data;
 
     }
-    public function validacionTipo($docemp){
-
-        $fecha = Date('Y-m-d');
-
-        $registro =  Registro::where('docemp', $docemp)->where('fecha',$fecha)->orderBy('id', 'desc')->first();
-
-
-        return $registro;
-    }
-
-
-
-
-
 
 }
