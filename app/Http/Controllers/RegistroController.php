@@ -35,15 +35,17 @@ class RegistroController extends Controller
                 'errors' => $validate->errors()
             );
         } else {
-            $data = $jwtAuth->validateNomin02($params_array['docemp']);
+            $data = $jwtAuth->validateNomin02((int)$params_array['docemp']);
             if ($data['status'] != 'error') {
                 $data = $this->Validacion_Register($data);
             }
 
-            $jwt = JWT::encode($data, $this->key, 'HS256');
-            $decoded = JWT::decode($jwt, $this->key, ['HS256']);
 
         }
+        
+        $jwt = JWT::encode($data, $this->key, 'HS256');
+        $decoded = JWT::decode($jwt, $this->key, ['HS256']);
+
         return response()->json($decoded);
     }
 
@@ -51,56 +53,87 @@ class RegistroController extends Controller
 
     public function Validacion_Register($data)
     {
-
         $fecha = Date('Y-m-d');
         $hora = Date('H:i:s');
         $registro = '';
         $registro = Registro::where('docemp', $data['docemp'])->where('fecha', $fecha)->orderBy('id', 'desc')->first();
         if ($registro) {
-            $fecini = new DateTime($fecha.' '.$hora);
-            $fecfin = new DateTime($fecha.' '.$registro->hora);
-            var_dump($fecini);
-            var_dump($fecfin);
+            $fecini = new DateTime($fecha . ' ' . $hora);
+            $fecfin = new DateTime($fecha . ' ' . $registro->hora);
             $interval = $fecini->diff($fecfin);
             $diferencia = $interval->i;
-
-            if($diferencia<=1){
+            if ((int)$diferencia < 1) {
                 $data = array(
-                    'status'=>'error',
-                    'message'=>'Ya existe registro!',
+                    'status' => 'error',
+                    'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']).' '.trim($data['segnom']).' '.trim($data['priape']).' '.trim($data['segape'])),
+                    'hora'=> $hora,
+                    'message' => 'Ya existe registro!',
                 );
-            }else{
+            } else {
                 if ($registro->tipo == 'E') {
                     $respuesta = $this->register_tipo($data, 'S');
-                    if($respuesta){
+                    if ($respuesta) {
                         $data = array(
-                            'status'=>'success',
-                            'message'=>'Salida!',
-                        );      
-                    }  
+                            'status' => 'success',
+                            'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']).' '.trim($data['segnom']).' '.trim($data['priape']).' '.trim($data['segape'])),
+                            'hora'=> $hora,
+                            'message' => 'Salida!',
+                        );
+                    }
                 } else {
                     $respuesta = $this->register_tipo($data, 'E');
 
-                    if($respuesta){
+                    if ($respuesta) {
                         $data = array(
-                            'status'=>'success',
-                            'message'=>'Ingreso!',
-                        );      
-                    }  
+                            'status' => 'success',
+                            'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']).' '.trim($data['segnom']).' '.trim($data['priape']).' '.trim($data['segape'])),
+                            'hora'=> $hora,
+                            'message' => 'Ingreso!',
+                        );
+                    }
                 }
             }
         } else {
             $respuesta = $this->register_tipo($data, 'E');
-            if($respuesta){
+            if ($respuesta) {
                 $data = array(
-                    'status'=>'success',
-                    'message'=>'Ingreso!',
-                );      
-            }  
+                    'status' => 'success',
+                    'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']).' '.trim($data['segnom']).' '.trim($data['priape']).' '.trim($data['segape'])),
+                    'hora'=> $hora,
+                    'message' => 'Ingreso!',
+                );
+            }
         }
-        return $data;
+
+        $jwt = JWT::encode($data, $this->key, 'HS256');
+        //Devolver los datos identificados o el token, en funcion de un parametro
+        $decoded = JWT::decode($jwt, $this->key, ['HS256']);
+
+        return $decoded;
     }
 
+
+
+
+    public static function convert_from_latin1_to_utf8_recursively($dat)
+    {
+        if (is_string($dat)) {
+            return utf8_encode($dat);
+        } elseif (is_array($dat)) {
+            $ret = [];
+            foreach ($dat as $i => $d)
+                $ret[$i] = self::convert_from_latin1_to_utf8_recursively($d);
+
+            return $ret;
+        } elseif (is_object($dat)) {
+            foreach ($dat as $i => $d)
+                $dat->$i = self::convert_from_latin1_to_utf8_recursively($d);
+
+            return $dat;
+        } else {
+            return $dat;
+        }
+    }
 
     public function register_tipo($data, $tipo)
     {
@@ -118,9 +151,9 @@ class RegistroController extends Controller
         $registro->save();
 
 
-        if($registro){
+        if ($registro) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
