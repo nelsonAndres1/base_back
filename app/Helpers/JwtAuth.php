@@ -171,7 +171,7 @@ class JwtAuth
                     'coddep' => $nomin02->coddep,
                     'detalle_coddep' => $conta28->detalle,
                     'code' => 200,
-                    'status'=>'success'
+                    'status' => 'success'
                 );
 
             } else {
@@ -196,41 +196,43 @@ class JwtAuth
 
     }
 
-    public function TipoHorario(){
+    public function TipoHorario()
+    {
 
         $tipo_horario = tipo_horario::all();
         $arrayTH = array();
-        if($tipo_horario){
+        if ($tipo_horario) {
             foreach ($tipo_horario as $th) {
                 $array = array(
-                    'id'=>$th->id,
-                    'detalle'=>trim($th->detalle)
+                    'id' => $th->id,
+                    'detalle' => trim($th->detalle)
                 );
-            array_push($arrayTH,$array);    
+                array_push($arrayTH, $array);
             }
-        }else{
+        } else {
             $arrayTH = array(
                 'status' => 'error',
                 'message' => 'No existen datos'
-            );           
+            );
         }
         return $arrayTH;
 
     }
 
-    public function  getConta28(){
+    public function getConta28()
+    {
 
-        $conta28 = Conta28::where('estado','A')->where('cnt','01')->get();
+        $conta28 = Conta28::where('estado', 'A')->where('cnt', '01')->get();
         $arrayC = array();
-        if($conta28){
+        if ($conta28) {
             foreach ($conta28 as $key) {
                 $array = array(
-                    'coddep'=>$key->coddep,
-                    'detalle'=>$key->detalle,
+                    'coddep' => $key->coddep,
+                    'detalle' => $key->detalle,
                 );
                 array_push($arrayC, $array);
             }
-        }else{
+        } else {
             $arrayC = array(
                 'status' => 'error',
                 'message' => 'No existen datos'
@@ -240,19 +242,20 @@ class JwtAuth
     }
 
 
-    public function  getNomin02($coddep){
+    public function getNomin02($coddep)
+    {
 
-        $nomin02 = Nomin02::where('coddep',$coddep)->where('estado','A')->get();
+        $nomin02 = Nomin02::where('coddep', $coddep)->where('estado', 'A')->get();
         $arrayN = array();
-        if($nomin02){
+        if ($nomin02) {
             foreach ($nomin02 as $key) {
                 $array = array(
-                    'nomemp'=>utf8_decode(utf8_encode(trim($key->nomemp).' '.trim($key->segnom).' '.trim($key->priape).' '.trim($key->segape))),
-                    'docemp'=>$key->docemp,
+                    'nomemp' => utf8_decode(utf8_encode(trim($key->nomemp) . ' ' . trim($key->segnom) . ' ' . trim($key->priape) . ' ' . trim($key->segape))),
+                    'docemp' => $key->docemp,
                 );
                 array_push($arrayN, $array);
             }
-        }else{
+        } else {
             $arrayN = array(
                 'status' => 'error',
                 'message' => 'No existen datos'
@@ -264,23 +267,34 @@ class JwtAuth
 
 
 
-    public function getHorarios(){
-
-        $horarios = Horarios::where('estado','A')->get();
+    public function getHorarios()
+    {
+        $horarios = Horarios::where('estado', 'A')->get();
         $arrayH = array();
-        if($horarios){
-            foreach($horarios as $ho){
-                /* $array = array(
-                    'id'=>$ho->id,
-                    'horingam'=>$ho->horingam,
-                    'horsalam'=>$ho->horsalam,
-
-
-                ) */
+        if ($horarios) {
+            foreach ($horarios as $ho) {
+                $tipo_horario = tipo_horario::where('id', $ho->id_tipo)->first();
+                $array = array(
+                    'id' => $ho->id,
+                    'horingam' => $ho->horingam,
+                    'horsalam' => $ho->horsalam,
+                    'horingpm' => $ho->horingpm,
+                    'horsalpm' => $ho->horsalpm,
+                    'estado' => $ho->estado,
+                    'tipo_detalle' => utf8_decode(trim($tipo_horario->detalle)),
+                    'detalle' => $ho->detalle
+                );
+                array_push($arrayH, $array);
             }
+        } else {
+            $arrayH = array(
+                'status' => 'error',
+                'message' => 'No existen datos'
+            );
         }
-
-
+        $jwt = JWT::encode($arrayH, $this->key, 'HS256');
+        $decoded = JWT::decode($jwt, $this->key, ['HS256']);
+        return $decoded;
     }
 
 }

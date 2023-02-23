@@ -32,6 +32,7 @@ Route::post('api/tipo_horarios/TipoHorario', [App\Http\Controllers\Tipo_horarioC
 Route::post('api/horarios/saveHorario', [App\Http\Controllers\HorariosController::class,'saveHorario']);
 
 Route::post('api/horarios/getConta28', [App\Http\Controllers\HorariosController::class,'getConta28']);
+Route::post('api/horarios/getHorarios', [App\Http\Controllers\HorariosController::class,'getHorarios']);
 
 
 Route::get('/api/trabajador_horario/searchConta28',[App\Http\Controllers\Trabajador_horarioController::class,'searchConta28']);

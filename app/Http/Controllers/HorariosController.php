@@ -225,4 +225,29 @@ class HorariosController extends Controller
         return response()->json($decoded);
     }
 
+    public function getHorarios(Request $request){
+        
+        $jwtAuth = new \JwtAuth();
+        $json = $request->input('json', null);
+        $params_array = json_decode($json, true);
+
+        $validate = Validator::make($params_array, [
+        ]);
+
+        if($validate->fails()){
+            $data = array(
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No Logeado',
+                'errors' => $validate->errors()
+            );
+        }else{
+            $data = $jwtAuth->getHorarios();
+        }
+
+        return response()->json($data);
+    }
+
+    
+
 }
