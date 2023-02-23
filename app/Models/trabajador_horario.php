@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Horarios extends Model
+class trabajador_horario extends Model
 {
     use HasFactory;
-    protected $table = 'horarios';
+
+    protected $table = 'trabajador_horario';
     public $timestamps = false;
 }

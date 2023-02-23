@@ -23,7 +23,19 @@ Route::post('/api/login',[App\Http\Controllers\Gener02Controller::class,'login']
 
 Route::post('/api/registro/validateNomin02',[App\Http\Controllers\RegistroController::class,'validateNomin02']);
 
+Route::post('api/horarios/adicionar', [App\Http\Controllers\HorariosController::class,'adicionar']);
+Route::post('api/horarios/editar', [App\Http\Controllers\HorariosController::class,'editar']);
+Route::post('api/horarios/eliminar', [App\Http\Controllers\HorariosController::class,'eliminar']);
 
+
+Route::post('api/tipo_horarios/TipoHorario', [App\Http\Controllers\Tipo_horarioController::class,'TipoHorario']);
+Route::post('api/horarios/saveHorario', [App\Http\Controllers\HorariosController::class,'saveHorario']);
+
+Route::post('api/horarios/getConta28', [App\Http\Controllers\HorariosController::class,'getConta28']);
+
+
+Route::get('/api/trabajador_horario/searchConta28',[App\Http\Controllers\Trabajador_horarioController::class,'searchConta28']);
+Route::post('/api/nomin02/getNomin02',[App\Http\Controllers\Nomin02Controller::class,'getNomin02']);
 
 
 

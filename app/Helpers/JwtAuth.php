@@ -2,13 +2,15 @@
 
 namespace App\Helpers;
 
+use App\Models\Horarios;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\DB;
 use App\Models\Gener02;
 use App\Models\Nomin02;
 use App\Models\Conta28;
 use App\Models\Registro;
-
+use App\Models\tipo_horario;
+use App\Models\trabajador_horario;
 
 /* require_once("/resources/libs/UserReportPdf/UserReportPdf.php");
 require_once("/resources/libs/UserReportExcel/UserReportExcel.php");
@@ -191,6 +193,93 @@ class JwtAuth
         }
 
         return $data;
+
+    }
+
+    public function TipoHorario(){
+
+        $tipo_horario = tipo_horario::all();
+        $arrayTH = array();
+        if($tipo_horario){
+            foreach ($tipo_horario as $th) {
+                $array = array(
+                    'id'=>$th->id,
+                    'detalle'=>trim($th->detalle)
+                );
+            array_push($arrayTH,$array);    
+            }
+        }else{
+            $arrayTH = array(
+                'status' => 'error',
+                'message' => 'No existen datos'
+            );           
+        }
+        return $arrayTH;
+
+    }
+
+    public function  getConta28(){
+
+        $conta28 = Conta28::where('estado','A')->where('cnt','01')->get();
+        $arrayC = array();
+        if($conta28){
+            foreach ($conta28 as $key) {
+                $array = array(
+                    'coddep'=>$key->coddep,
+                    'detalle'=>$key->detalle,
+                );
+                array_push($arrayC, $array);
+            }
+        }else{
+            $arrayC = array(
+                'status' => 'error',
+                'message' => 'No existen datos'
+            );
+        }
+        return $arrayC;
+    }
+
+
+    public function  getNomin02($coddep){
+
+        $nomin02 = Nomin02::where('coddep',$coddep)->where('estado','A')->get();
+        $arrayN = array();
+        if($nomin02){
+            foreach ($nomin02 as $key) {
+                $array = array(
+                    'nomemp'=>utf8_decode(utf8_encode(trim($key->nomemp).' '.trim($key->segnom).' '.trim($key->priape).' '.trim($key->segape))),
+                    'docemp'=>$key->docemp,
+                );
+                array_push($arrayN, $array);
+            }
+        }else{
+            $arrayN = array(
+                'status' => 'error',
+                'message' => 'No existen datos'
+            );
+        }
+        return $arrayN;
+    }
+
+
+
+
+    public function getHorarios(){
+
+        $horarios = Horarios::where('estado','A')->get();
+        $arrayH = array();
+        if($horarios){
+            foreach($horarios as $ho){
+                /* $array = array(
+                    'id'=>$ho->id,
+                    'horingam'=>$ho->horingam,
+                    'horsalam'=>$ho->horsalam,
+
+
+                ) */
+            }
+        }
+
 
     }
 
