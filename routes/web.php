@@ -38,6 +38,8 @@ Route::post('api/horarios/getHorarios', [App\Http\Controllers\HorariosController
 Route::get('/api/trabajador_horario/searchConta28',[App\Http\Controllers\Trabajador_horarioController::class,'searchConta28']);
 Route::post('/api/nomin02/getNomin02',[App\Http\Controllers\Nomin02Controller::class,'getNomin02']);
 
+Route::post('/api/trabajador_horario/guardarTrabajadorHorario',[App\Http\Controllers\Trabajador_horarioController::class,'guardarTrabajadorHorario']);
+
 
 
 

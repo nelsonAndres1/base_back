@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use App\Models\Conta28;
+use Illuminate\Support\Facades\Validator;
+use App\Models\trabajador_horario;
 
 class Trabajador_horarioController extends Controller
 {
@@ -49,4 +52,56 @@ class Trabajador_horarioController extends Controller
             return $dat;
         }
     }
+
+    public function guardarTrabajadorHorario(Request $request)
+    {
+        $jwtAuth = new \JwtAuth();
+        $json = $request->input('json', null);
+        $params_array = json_decode($json, true);
+
+        $validate = Validator::make($params_array, [
+            'id_horario' => 'required',
+        ]);
+        if ($validate->fails()) {
+            $data = array(
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No Logeado',
+                'errors' => $validate->errors()
+            );
+        } else {
+            try {
+                foreach ($params_array['docemp'] as $key) {
+                    $trabajador_horario = trabajador_horario::where('docemp', $key)->where("estado", "A")->where('id_horario', $params_array['id_horario'])->first();
+                    if(!$trabajador_horario){
+                        $trabajador_horario = trabajador_horario::where('docemp', $key)->where("estado", "A")->update(['estado' => 'I']);
+                        $trabajador_horario = new trabajador_horario();
+                        $trabajador_horario->docemp = $key;
+                        $trabajador_horario->id_horario = $params_array['id_horario'];
+                        $trabajador_horario->estado = "A";
+                        $trabajador_horario->save();
+                    }
+                }
+
+                $data = array(
+                    'status' => 'success',
+                    'code' => 200,
+                    'message' => 'Datos Insertados',
+                );
+
+
+            } catch (Exception $e) {
+                $data = array(
+                    'status' => 'error',
+                    'code' => 404,
+                    'message' => 'Error al insertar datos!',
+                    'errors' => $e
+                );
+
+            }
+
+            return $data;
+        }
+    }
+
 }

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\Registro;
 use Firebase\JWT\JWT;
+use App\Models\trabajador_horario;
 use Nette\Utils\DateTime;
 
 
@@ -37,7 +39,7 @@ class RegistroController extends Controller
         } else {
             $data = $jwtAuth->validateNomin02((int)$params_array['docemp']);
             if ($data['status'] != 'error') {
-                $data = $this->Validacion_Register($data);
+                $data = $this->Validacion_Register($data, $params_array['usuario']);
             }
 
 
@@ -51,10 +53,10 @@ class RegistroController extends Controller
 
 
 
-    public function Validacion_Register($data)
+    public function Validacion_Register($data, $usuario)
     {
         $fecha = Date('Y-m-d');
-        $hora = Date('H:i:s');
+        $hora = Date('H:i:s');        
         $registro = '';
         $registro = Registro::where('docemp', $data['docemp'])->where('fecha', $fecha)->orderBy('id', 'desc')->first();
         if ($registro) {
@@ -71,7 +73,7 @@ class RegistroController extends Controller
                 );
             } else {
                 if ($registro->tipo == 'E') {
-                    $respuesta = $this->register_tipo($data, 'S');
+                    $respuesta = $this->register_tipo($data, 'S',$usuario);
                     if ($respuesta) {
                         $data = array(
                             'status' => 'success',
@@ -81,7 +83,7 @@ class RegistroController extends Controller
                         );
                     }
                 } else {
-                    $respuesta = $this->register_tipo($data, 'E');
+                    $respuesta = $this->register_tipo($data, 'E',$usuario);
 
                     if ($respuesta) {
                         $data = array(
@@ -94,7 +96,7 @@ class RegistroController extends Controller
                 }
             }
         } else {
-            $respuesta = $this->register_tipo($data, 'E');
+            $respuesta = $this->register_tipo($data, 'E', $usuario);
             if ($respuesta) {
                 $data = array(
                     'status' => 'success',
@@ -135,27 +137,38 @@ class RegistroController extends Controller
         }
     }
 
-    public function register_tipo($data, $tipo)
+    public function register_tipo($data, $tipo,$usuario)
     {
 
-        $hora = date("H:i:s");
-        $hoy = date("Y-m-d");
 
-        $registro = new Registro();
-        $registro->docemp = $data['docemp'];
-        $registro->fecha = $hoy;
-        $registro->hora = $hora;
-        $registro->tipo = $tipo;
-        $registro->usrsede = '1';
-        $registro->id_horario = 1;
-        $registro->save();
+        try {
+            $hora = date("H:i:s");
+            $hoy = date("Y-m-d");
 
+            $trabajador_horario = trabajador_horario::where('docemp', $data['docemp'])->where("estado", "A")->first(); 
 
-        if ($registro) {
-            return true;
-        } else {
-            return false;
+            if($trabajador_horario){
+                $registro = new Registro();
+                $registro->docemp = $data['docemp'];
+                $registro->fecha = $hoy;
+                $registro->hora = $hora;
+                $registro->tipo = $tipo;
+                $registro->usrsede = $usuario;
+                $registro->id_horario = $trabajador_horario->id_horario;
+                $registro->save();
+        
+                if ($registro) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }else{
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e;
         }
+
     }
 
 
