@@ -25,4 +25,6 @@ class Tipo_horarioController extends Controller
         return response()->json($decoded);
     }
 
+    
+
 }
