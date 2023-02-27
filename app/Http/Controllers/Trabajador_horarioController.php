@@ -23,7 +23,9 @@ class Trabajador_horarioController extends Controller
             $res = $query->get();
             if ($res) {
                 for ($i = 0; $i < count($res); $i++) {
-                    $res[$i]['detalle'] = utf8_decode($res[$i]['detalle']);
+                    if($res[$i]['estado']=='A'){
+                        $res[$i]['detalle'] = utf8_decode($res[$i]['detalle']);
+                    }
                 }
             }
         } else {
