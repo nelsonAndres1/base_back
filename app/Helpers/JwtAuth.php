@@ -250,7 +250,7 @@ class JwtAuth
         if ($nomin02) {
             foreach ($nomin02 as $key) {
                 $array = array(
-                    'nomemp' => utf8_decode(utf8_encode(trim($key->nomemp) . ' ' . trim($key->segnom) . ' ' . trim($key->priape) . ' ' . trim($key->segape))),
+                    'nomemp' => trim(utf8_decode(utf8_encode($key->nomemp))) . ' ' . trim(utf8_decode(utf8_encode($key->segnom))) . ' ' . trim(utf8_decode(utf8_encode($key->priape))) . ' ' . trim(utf8_decode(utf8_encode($key->segape))),
                     'docemp' => $key->docemp,
                 );
                 array_push($arrayN, $array);
