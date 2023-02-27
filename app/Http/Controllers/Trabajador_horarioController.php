@@ -19,7 +19,7 @@ class Trabajador_horarioController extends Controller
             $query->whereRaw("coddep LIKE '%" . $data . "%'")
                 ->orWhereRaw("detalle LIKE '%" . $data . "%'");
 
-            $res = $this->convert_from_latin1_to_utf8_recursively($query->get());
+            $res = $query->get();
             if ($res) {
                 for ($i = 0; $i < count($res); $i++) {
                     $res[$i]['detalle'] = utf8_decode($res[$i]['detalle']);
