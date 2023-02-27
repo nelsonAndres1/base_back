@@ -16,7 +16,8 @@ class Trabajador_horarioController extends Controller
         $query = Conta28::query();
         $data = $request->input('search');
         if ($data != '') {
-            $query->whereRaw("coddep LIKE '%" . $data . "%'")
+            $query->where("cnt",'01')
+                ->whereRaw("coddep LIKE '%" . $data . "%'")
                 ->orWhereRaw("detalle LIKE '%" . $data . "%'");
 
             $res = $query->get();
