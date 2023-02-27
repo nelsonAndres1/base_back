@@ -88,7 +88,7 @@ class Gener02Controller extends Controller
 
             $pwd = $params->clave;
 
-            $clave = $pwd;
+            $clave = $this->encriptar($pwd);
             $signup = $jwtAuth->signup($params->usuario, $clave);
             if(!empty($params->gettoken)){
                 $signup = $jwtAuth->signup($params->usuario, $clave, true);
