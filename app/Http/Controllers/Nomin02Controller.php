@@ -42,4 +42,27 @@ class Nomin02Controller extends Controller
         return response()->json($decoded);
     }
 
+
+    public function traerUltimo(Request $request){
+
+        $jwtAuth = new \JwtAuth();
+        $json = $request->input('json', null);
+        $params_array = json_decode($json, true);
+
+        $validate = Validator::make($params_array, [
+        ]);
+
+        if($validate->fails()){
+            $data = array(
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Error!',
+                'errors' => $validate->errors()
+            );
+        }else{
+            $data = $jwtAuth->traerUltimo();
+        }
+        return response()->json($data);
+    }
+
 }

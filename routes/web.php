@@ -40,6 +40,8 @@ Route::post('/api/nomin02/getNomin02',[App\Http\Controllers\Nomin02Controller::c
 
 Route::post('/api/trabajador_horario/guardarTrabajadorHorario',[App\Http\Controllers\Trabajador_horarioController::class,'guardarTrabajadorHorario']);
 
+Route::post('/api/nomin02/traerUltimo',[App\Http\Controllers\Nomin02Controller::class,'traerUltimo']);
+
 
 
 

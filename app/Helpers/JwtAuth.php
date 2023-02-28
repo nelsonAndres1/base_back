@@ -296,5 +296,25 @@ class JwtAuth
         $decoded = JWT::decode($jwt, $this->key, ['HS256']);
         return $decoded;
     }
+    public function traerUltimo(){
+        $registro = Registro::orderBy('id', 'DESC')->first();
+
+        if($registro){
+            
+            $nomin02 = Nomin02::where('docemp',$registro->docemp)->first();
+            $array = array(
+                'nombre'=>trim(utf8_decode($nomin02->nomemp)).' '.trim(utf8_decode($nomin02->segnom)).' '.trim(utf8_decode($nomin02->priape)).' '.trim(utf8_decode($nomin02->segape)),
+                'docemp'=> $registro->docemp,
+            );
+        }else{
+            $array = array(
+                'status' => 'error',
+                'message' => 'No existen datos'
+            );
+        }
+        $jwt = JWT::encode($array, $this->key, 'HS256');
+        $decoded = JWT::decode($jwt, $this->key, ['HS256']);
+        return $decoded;
+    }
 
 }
