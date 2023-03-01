@@ -296,8 +296,8 @@ class JwtAuth
         $decoded = JWT::decode($jwt, $this->key, ['HS256']);
         return $decoded;
     }
-    public function traerUltimo(){
-        $registro = Registro::orderBy('id', 'DESC')->first();
+    public function traerUltimo($usuario){
+        $registro = Registro::where('usrsede', $usuario)->orderBy('id', 'DESC')->first();
 
         if($registro){
             

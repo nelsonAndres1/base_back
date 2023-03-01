@@ -50,6 +50,7 @@ class Nomin02Controller extends Controller
         $params_array = json_decode($json, true);
 
         $validate = Validator::make($params_array, [
+            'usuario'=>'required'
         ]);
 
         if($validate->fails()){
@@ -60,7 +61,7 @@ class Nomin02Controller extends Controller
                 'errors' => $validate->errors()
             );
         }else{
-            $data = $jwtAuth->traerUltimo();
+            $data = $jwtAuth->traerUltimo($params_array['usuario']);
         }
         return response()->json($data);
     }
