@@ -297,7 +297,8 @@ class JwtAuth
         return $decoded;
     }
     public function traerUltimo($usuario){
-        $registro = Registro::where('usrsede', $usuario)->orderBy('id', 'DESC')->first();
+        $date = new Date('Y-m-d');
+        $registro = Registro::where('usrsede', $usuario)->where('fecha',$date)->orderBy('id', 'DESC')->first();
 
         if($registro){
             
