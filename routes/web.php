@@ -43,6 +43,8 @@ Route::post('/api/trabajador_horario/guardarTrabajadorHorario',[App\Http\Control
 Route::post('/api/nomin02/traerUltimo',[App\Http\Controllers\Nomin02Controller::class,'traerUltimo']);
 
 
+Route::post('/api/registro/permisos',[App\Http\Controllers\RegistroController::class,'permisos']);
+
 
 
 

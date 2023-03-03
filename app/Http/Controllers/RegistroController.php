@@ -172,5 +172,28 @@ class RegistroController extends Controller
     }
 
 
+    public function permisos(Request $request){
+        
+        $jwtAuth = new \JwtAuth();
+        $json = $request->input('json', null);
+        $params_array = json_decode($json, true);
 
+        $validate = Validator::make($params_array, [
+            'sub' => 'required'
+        ]);
+
+
+        if ($validate->fails()) {
+            $data = array(
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No Logeado',
+                'errors' => $validate->errors()
+            );
+        } else {
+            $data =  $jwtAuth->permisos($params_array['sub']);
+
+        }
+        return response()->json($data);
+    }
 }

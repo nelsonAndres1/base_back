@@ -6,6 +6,7 @@ use App\Models\Horarios;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\DB;
 use App\Models\Gener02;
+use App\Models\Gener28;
 use App\Models\Nomin02;
 use App\Models\Conta28;
 use App\Models\Registro;
@@ -296,18 +297,19 @@ class JwtAuth
         $decoded = JWT::decode($jwt, $this->key, ['HS256']);
         return $decoded;
     }
-    public function traerUltimo($usuario){
-        $date =  Date('Y-m-d');
-        $registro = Registro::where('usrsede', $usuario)->where('fecha',$date)->orderBy('id', 'DESC')->first();
+    public function traerUltimo($usuario)
+    {
+        $date = Date('Y-m-d');
+        $registro = Registro::where('usrsede', $usuario)->where('fecha', $date)->orderBy('id', 'DESC')->first();
 
-        if($registro){
-            
-            $nomin02 = Nomin02::where('docemp',$registro->docemp)->first();
+        if ($registro) {
+
+            $nomin02 = Nomin02::where('docemp', $registro->docemp)->first();
             $array = array(
-                'nombre'=>trim(utf8_decode($nomin02->nomemp)).' '.trim(utf8_decode($nomin02->segnom)).' '.trim(utf8_decode($nomin02->priape)).' '.trim(utf8_decode($nomin02->segape)),
-                'docemp'=> $registro->docemp,
+                'nombre' => trim(utf8_decode($nomin02->nomemp)) . ' ' . trim(utf8_decode($nomin02->segnom)) . ' ' . trim(utf8_decode($nomin02->priape)) . ' ' . trim(utf8_decode($nomin02->segape)),
+                'docemp' => $registro->docemp,
             );
-        }else{
+        } else {
             $array = array(
                 'status' => 'error',
                 'message' => 'No existen datos'
@@ -316,6 +318,39 @@ class JwtAuth
         $jwt = JWT::encode($array, $this->key, 'HS256');
         $decoded = JWT::decode($jwt, $this->key, ['HS256']);
         return $decoded;
+    }
+    public function permisos($usuario)
+    {
+        $gener02 = Gener02::where('usuario', $usuario)->first();
+        $arrayP = array();
+        if ($gener02) {
+            $gener28 = Gener28::where('role', $gener02->tipfun)->where('codapl', 'ET')->get();
+            if ($gener28) {
+                foreach ($gener28 as $key) {
+                    $array = array(
+                        'resource' => $key->resource,
+                        'action' => $key->action,
+                        'allow' => $key->allow
+                    );
+                array_push($arrayP, $array);
+                }
+            }else{
+                $arrayP = array(
+                    'status' => 'error',
+                    'message' => 'No existen datos'
+                );
+            }
+        } else {
+            $arrayP = array(
+                'status' => 'error',
+                'message' => 'No existen datos'
+            );
+        }
+
+        $jwt = JWT::encode($arrayP, $this->key, 'HS256');
+        $decoded = JWT::decode($jwt, $this->key, ['HS256']);
+        return $decoded;
+
     }
 
 }
