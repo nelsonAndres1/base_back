@@ -75,14 +75,17 @@ class Trabajador_horarioController extends Controller
         } else {
             try {
                 foreach ($params_array['docemp'] as $key) {
-                    $trabajador_horario = trabajador_horario::where('docemp', $key)->where("estado", "A")->where('id_horario', $params_array['id_horario'])->first();
-                    if(!$trabajador_horario){
-                        $trabajador_horario = trabajador_horario::where('docemp', $key)->where("estado", "A")->update(['estado' => 'I']);
-                        $trabajador_horario = new trabajador_horario();
-                        $trabajador_horario->docemp = $key;
-                        $trabajador_horario->id_horario = $params_array['id_horario'];
-                        $trabajador_horario->estado = "A";
-                        $trabajador_horario->save();
+                    foreach ($params_array['dias'] as $keyD) {
+                        $trabajador_horario = trabajador_horario::where('docemp', $key)->where("estado", "A")->where('id_horario', $params_array['id_horario'])->where('dia', $keyD)->first();
+                        if(!$trabajador_horario){
+                            $trabajador_horario = trabajador_horario::where('docemp', $key)->where("estado", "A")->where('dia', $keyD)->update(['estado' => 'I']);
+                            $trabajador_horario = new trabajador_horario();
+                            $trabajador_horario->docemp = $key;
+                            $trabajador_horario->id_horario = $params_array['id_horario'];
+                            $trabajador_horario->dia = $keyD;
+                            $trabajador_horario->estado = "A";
+                            $trabajador_horario->save();
+                        }
                     }
                 }
 
