@@ -37,14 +37,14 @@ class RegistroController extends Controller
                 'errors' => $validate->errors()
             );
         } else {
-            $data = $jwtAuth->validateNomin02((int)$params_array['docemp']);
+            $data = $jwtAuth->validateNomin02((int) $params_array['docemp']);
             if ($data['status'] != 'error') {
                 $data = $this->Validacion_Register($data, $params_array['usuario']);
             }
 
 
         }
-        
+
         $jwt = JWT::encode($data, $this->key, 'HS256');
         $decoded = JWT::decode($jwt, $this->key, ['HS256']);
 
@@ -56,7 +56,7 @@ class RegistroController extends Controller
     public function Validacion_Register($data, $usuario)
     {
         $fecha = Date('Y-m-d');
-        $hora = Date('H:i:s');        
+        $hora = Date('H:i:s');
         $registro = '';
         $registro = Registro::where('docemp', $data['docemp'])->where('fecha', $fecha)->orderBy('id', 'desc')->first();
         if ($registro) {
@@ -64,32 +64,32 @@ class RegistroController extends Controller
             $fecfin = new DateTime($fecha . ' ' . $registro->hora);
             $interval = $fecini->diff($fecfin);
             $diferencia = $interval->i;
-            if ((int)$diferencia < 5) {
+            if ((int) $diferencia < 5) {
                 $data = array(
                     'status' => 'error',
-                    'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']).' '.trim($data['segnom']).' '.trim($data['priape']).' '.trim($data['segape'])),
-                    'hora'=> $hora,
+                    'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']) . ' ' . trim($data['segnom']) . ' ' . trim($data['priape']) . ' ' . trim($data['segape'])),
+                    'hora' => $hora,
                     'message' => 'Ya existe registro!',
                 );
             } else {
                 if ($registro->tipo == 'E') {
-                    $respuesta = $this->register_tipo($data, 'S',$usuario);
+                    $respuesta = $this->register_tipo($data, 'S', $usuario);
                     if ($respuesta) {
                         $data = array(
                             'status' => 'success',
-                            'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']).' '.trim($data['segnom']).' '.trim($data['priape']).' '.trim($data['segape'])),
-                            'hora'=> $hora,
+                            'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']) . ' ' . trim($data['segnom']) . ' ' . trim($data['priape']) . ' ' . trim($data['segape'])),
+                            'hora' => $hora,
                             'message' => 'Salida!',
                         );
                     }
                 } else {
-                    $respuesta = $this->register_tipo($data, 'E',$usuario);
+                    $respuesta = $this->register_tipo($data, 'E', $usuario);
 
                     if ($respuesta) {
                         $data = array(
                             'status' => 'success',
-                            'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']).' '.trim($data['segnom']).' '.trim($data['priape']).' '.trim($data['segape'])),
-                            'hora'=> $hora,
+                            'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']) . ' ' . trim($data['segnom']) . ' ' . trim($data['priape']) . ' ' . trim($data['segape'])),
+                            'hora' => $hora,
                             'message' => 'Ingreso!',
                         );
                     }
@@ -100,8 +100,8 @@ class RegistroController extends Controller
             if ($respuesta) {
                 $data = array(
                     'status' => 'success',
-                    'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']).' '.trim($data['segnom']).' '.trim($data['priape']).' '.trim($data['segape'])),
-                    'hora'=> $hora,
+                    'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']) . ' ' . trim($data['segnom']) . ' ' . trim($data['priape']) . ' ' . trim($data['segape'])),
+                    'hora' => $hora,
                     'message' => 'Ingreso!',
                 );
             }
@@ -137,17 +137,47 @@ class RegistroController extends Controller
         }
     }
 
-    public function register_tipo($data, $tipo,$usuario)
-    {
 
+    function get_nombre_dia($fecha)
+    {
+        $fechats = strtotime($fecha); //pasamos a timestamp
+
+        switch (date('w', $fechats)) {
+            case 0:
+                return 7;
+                break;
+            case 1:
+                return 1;
+                break;
+            case 2:
+                return 2;
+                break;
+            case 3:
+                return 3;
+                break;
+            case 4:
+                return 4;
+                break;
+            case 5:
+                return 5;
+                break;
+            case 6:
+                return 6;
+                break;
+        }
+    }
+
+    public function register_tipo($data, $tipo, $usuario)
+    {
 
         try {
             $hora = date("H:i:s");
             $hoy = date("Y-m-d");
+            $dia2 = date("Y-m-d");
+            $dia = $this->get_nombre_dia($dia2);
+            $trabajador_horario = trabajador_horario::where('docemp', $data['docemp'])->where("estado", "A")->where("dia", $dia)->first();
 
-            $trabajador_horario = trabajador_horario::where('docemp', $data['docemp'])->where("estado", "A")->first(); 
-
-            if($trabajador_horario){
+            if ($trabajador_horario) {
                 $registro = new Registro();
                 $registro->docemp = $data['docemp'];
                 $registro->fecha = $hoy;
@@ -156,13 +186,13 @@ class RegistroController extends Controller
                 $registro->usrsede = $usuario;
                 $registro->id_horario = $trabajador_horario->id_horario;
                 $registro->save();
-        
+
                 if ($registro) {
                     return true;
                 } else {
                     return false;
                 }
-            }else{
+            } else {
                 return false;
             }
         } catch (Exception $e) {
@@ -172,8 +202,9 @@ class RegistroController extends Controller
     }
 
 
-    public function permisos(Request $request){
-        
+    public function permisos(Request $request)
+    {
+
         $jwtAuth = new \JwtAuth();
         $json = $request->input('json', null);
         $params_array = json_decode($json, true);
@@ -191,7 +222,7 @@ class RegistroController extends Controller
                 'errors' => $validate->errors()
             );
         } else {
-            $data =  $jwtAuth->permisos($params_array['sub']);
+            $data = $jwtAuth->permisos($params_array['sub']);
 
         }
         return response()->json($data);
