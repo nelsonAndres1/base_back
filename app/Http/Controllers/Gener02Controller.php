@@ -87,7 +87,6 @@ class Gener02Controller extends Controller
         }else{            
 
             $pwd = $params->clave;
-
             $clave = $this->encriptar($pwd);
             $signup = $jwtAuth->signup($params->usuario, $clave);
             if(!empty($params->gettoken)){
@@ -177,5 +176,30 @@ class Gener02Controller extends Controller
             }
         }
         return response()->json($signup, 200);
+    }
+
+
+    public function searchGener02(Request $request)
+    {
+        $res = '';
+        $query = Gener02::query();
+        $data = $request->input('search');
+        if ($data != '') {
+            $query->whereRaw("usuario LIKE '%" . $data . "%'")
+                ->orWhereRaw("nombre LIKE '%" . $data . "%'");
+
+            $res = $query->get();
+            if ($res) {
+                for ($i = 0; $i < count($res); $i++) {
+                    if($res[$i]['estado']=='A'){
+                        $res[$i]['nombre'] = utf8_decode($res[$i]['nombre']);
+                    }
+                }
+            }
+        } else {
+            $query = '';
+            $res = $this->convert_from_latin1_to_utf8_recursively($query);
+        }
+        return $res;
     }
 }

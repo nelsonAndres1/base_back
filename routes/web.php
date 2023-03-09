@@ -48,5 +48,7 @@ Route::post('/api/registro/permisos',[App\Http\Controllers\RegistroController::c
 
 Route::get('/api/horario/searchHorario',[App\Http\Controllers\HorariosController::class,'searchHorario']);
 
+Route::get('/api/gener02/searchGener02',[App\Http\Controllers\Gener02Controller::class,'searchGener02']);
+
 
 
