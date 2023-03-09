@@ -248,6 +248,28 @@ class HorariosController extends Controller
         return response()->json($data);
     }
 
+    public function searchHorario(Request $request){
+        $res = '';
+        $query = Horarios::query();
+        $data = $request->input('search');
+        if ($data != '') {
+            $query->where("estado",'A')
+                ->whereRaw("detalle LIKE '%" . $data . "%'");
+
+            $res = $query->get();
+            if ($res) {
+                for ($i = 0; $i < count($res); $i++) {
+                    if($res[$i]['estado']=='A'){
+                        $res[$i]['detalle'] = utf8_decode($res[$i]['detalle']);
+                    }
+                }
+            }
+        } else {
+            $query = '';
+            $res = $this->convert_from_latin1_to_utf8_recursively($query);
+        }
+        return $res;
+    }
     
 
 }

@@ -46,7 +46,7 @@ Route::post('/api/nomin02/traerUltimo',[App\Http\Controllers\Nomin02Controller::
 Route::post('/api/registro/permisos',[App\Http\Controllers\RegistroController::class,'permisos']);
 
 
-
+Route::get('/api/horario/searchHorario',[App\Http\Controllers\HorariosController::class,'searchHorario']);
 
 
 
