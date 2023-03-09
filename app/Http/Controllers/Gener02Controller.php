@@ -185,8 +185,7 @@ class Gener02Controller extends Controller
         $query = Gener02::query();
         $data = $request->input('search');
         if ($data != '') {
-            $query->whereRaw("usuario LIKE '%" . $data . "%'")
-                ->orWhereRaw("nombre LIKE '%" . $data . "%'");
+            $query->orWhereRaw("nombre LIKE '%" . $data . "%'");
 
             $res = $query->get();
             if ($res) {
