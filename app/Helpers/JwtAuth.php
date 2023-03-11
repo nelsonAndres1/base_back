@@ -12,6 +12,7 @@ use App\Models\Conta28;
 use App\Models\Registro;
 use App\Models\tipo_horario;
 use App\Models\trabajador_horario;
+use App\Models\Conta116;
 
 /* require_once("/resources/libs/UserReportPdf/UserReportPdf.php");
 require_once("/resources/libs/UserReportExcel/UserReportExcel.php");
@@ -163,6 +164,11 @@ class JwtAuth
         if ($nomin02) {
             $conta28 = Conta28::where('coddep', $nomin02->coddep)->where('cnt', '01')->first();
             if ($nomin02->estado == 'A') {
+                if($conta28){
+                    $conta28_depen = trim(utf8_decode($conta28->detalle));
+                }else{
+                    $conta28_depen = '';
+                }
                 $data = array(
                     'docemp' => $nomin02->docemp,
                     'priape' => $nomin02->priape,
@@ -170,7 +176,7 @@ class JwtAuth
                     'nomemp' => $nomin02->nomemp,
                     'segnom' => $nomin02->segnom,
                     'coddep' => $nomin02->coddep,
-                    'detalle_coddep' => $conta28->detalle,
+                    'detalle_coddep' => $conta28_depen,
                     'code' => 200,
                     'status' => 'success'
                 );
@@ -332,9 +338,9 @@ class JwtAuth
                         'action' => $key->action,
                         'allow' => $key->allow
                     );
-                array_push($arrayP, $array);
+                    array_push($arrayP, $array);
                 }
-            }else{
+            } else {
                 $arrayP = array(
                     'status' => 'error',
                     'message' => 'No existen datos'
@@ -351,6 +357,81 @@ class JwtAuth
         $decoded = JWT::decode($jwt, $this->key, ['HS256']);
         return $decoded;
 
+    }
+
+
+    public function Reportes($docemp = '', $coddep = '', $fecini = '', $fecfin = '')
+    {
+        $array = array();
+        $registro = DB::table('registro');
+        $horarios = '';
+        if ($docemp != '') {
+            $registro->where('docemp', $docemp);
+        }
+        if ($coddep != '') {
+            $cedulas = array();
+            $nomin02 = Nomin02::select('docemp')->where('coddep', $coddep)->get();
+            foreach ($nomin02 as $key) {
+                array_push($cedulas, $key->docemp);
+            }
+            $registro->whereIn('docemp', $cedulas);
+        }
+        if (!$fecini == '' and !$fecfin == '') {
+            $fecini = date("Y-m-d", strtotime($fecini));
+            $fecfin = date("Y-m-d", strtotime($fecfin));
+            $registro->whereBetween('fecha', [$fecini, $fecfin]);
+        }
+
+        $registro->get();
+        if ($registro) {
+            foreach ($registro as $re) {
+                $nomin02 = Nomin02::where('docemp', $re->docemp)->first();
+                $nombre = trim(utf8_decode($nomin02->nomemp)) . ' ' . trim(utf8_decode($nomin02->segnom)) . ' ' . trim(utf8_decode($nomin02->priape)) . ' ' . trim(utf8_decode($nomin02->segape));
+                $gener02 = Gener02::where('usuario', $re->usrsede)->first();
+                $detalle_ubicacion = '';
+                $horarios = Horarios::where('id', $re->id_horario)->first();
+                if ($horarios) {
+                    $detalle_horario = trim(utf8_decode($horarios->detalle)) . ' ' . $horarios->horingam . ' ' . $horarios->horsalam . ' ' . $horarios->horingpm . ' ' . $horarios->horsalpm;
+                } else {
+                    $detalle_horario = '';
+                }
+
+                if ($gener02) {
+                    if ($gener02->ruta) {
+                        $conta116 = Conta116::where('codedi', $gener02->ruta)->first();
+                        if ($conta116) {
+                            $detalle_ubicacion = trim(utf8_decode($conta116->detalle));
+                        } else {
+                            $detalle_ubicacion = '';
+                        }
+                    } else {
+                        $detalle_ubicacion = '';
+                    }
+                } else {
+                    $detalle_ubicacion = '';
+                }
+                if ($re->tipo == 'E') {
+                    $tipo = 'ENTRADA';
+                } else {
+                    $tipo = 'SALIDA';
+                }
+                $array = array(
+                    'docemp' => $re->docemp,
+                    'nombre' => $nombre,
+                    'fecha' => $re->fecha,
+                    'hora' => $re->hora,
+                    'tipo_registro' => $tipo,
+                    'ubicacion' => $detalle_ubicacion,
+                    'detalle_horario' => $detalle_horario
+                );
+            }
+
+        } else {
+            $array = array();
+        }
+        $jwt = JWT::encode($array, $this->key, 'HS256');
+        $decoded = JWT::decode($jwt, $this->key, ['HS256']);
+        return $decoded;
     }
 
 }
