@@ -308,12 +308,21 @@ class JwtAuth
         $date = Date('Y-m-d');
         $registro = Registro::where('usrsede', $usuario)->where('fecha', $date)->orderBy('id', 'DESC')->first();
 
+        $tipo = '';
         if ($registro) {
 
             $nomin02 = Nomin02::where('docemp', $registro->docemp)->first();
+            
+            if($registro->tipo=='E'){
+                $tipo = 'ENTRO';
+            }else{
+                $tipo = 'SALIO';
+            }
+
             $array = array(
                 'nombre' => trim(utf8_decode($nomin02->nomemp)) . ' ' . trim(utf8_decode($nomin02->segnom)) . ' ' . trim(utf8_decode($nomin02->priape)) . ' ' . trim(utf8_decode($nomin02->segape)),
                 'docemp' => $registro->docemp,
+                'tipo_ingreso' => $tipo
             );
         } else {
             $array = array(
