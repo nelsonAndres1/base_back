@@ -64,7 +64,8 @@ class RegistroController extends Controller
             $fecfin = new DateTime($fecha . ' ' . $registro->hora);
             $interval = $fecini->diff($fecfin);
             $diferencia = $interval->i;
-            if ((int) $diferencia < 5) {
+            $diferencia_a = $interval->h;
+            if ((int) $diferencia < 5 and (int)$diferencia_a == 0) {
                 $data = array(
                     'status' => 'error',
                     'nombre' => $this->convert_from_latin1_to_utf8_recursively(trim($data['nomemp']) . ' ' . trim($data['segnom']) . ' ' . trim($data['priape']) . ' ' . trim($data['segape'])),
