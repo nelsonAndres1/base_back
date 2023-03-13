@@ -172,6 +172,8 @@ class RegistroController extends Controller
     {
 
         try {
+
+            date_default_timezone_set('America/Bogota');
             $hora = date("H:i:s");
             $hoy = date("Y-m-d");
             $dia2 = date("Y-m-d");
